@@ -7,7 +7,7 @@ class Game
     @correct_guesses = Array.new(@random_word.length, "_")
     @incorrect_guesses = []
     @remaining_attempts = 10
-    @display.
+    @Hangman.draw_it = draw_hangman
   end
 
   def user_option(option)
@@ -36,13 +36,21 @@ class Game
     play_game(@random_word)
   end
 
-  def load_saved_game
-    # implement loading saved game logic here
-  end
 
   def play_game(word)
     while @remaining_attempts > 0
       display_game_state(@correct_guesses, @incorrect_guesses, @remaining_attempts)
+
+      puts "Enter 'save' to save the game, or enter a letter to make a guess."
+
+      input = gets.chomp
+
+      if input.downcase == 'save'
+        save_game(@correct_guesses, @incorrect_guesses, @remaining_attempts, word)
+        return
+      else
+        guess = input
+      end
 
       guess = get_user_guess
 
@@ -100,7 +108,47 @@ class Game
   def sorry_user(word)
     puts "Sorry, you lost. The word was #{word}."
   end
+
+  def save_game(correct_guesses, incorrect_guesses, remaining_attempts, word)
+    save_number = 1
+    while File.exist?("output/save_#{save_number}.txt")
+      save_number += 1
+    end
+
+    filename = "output/save_#{save_number}.txt"
+    File.open(filename, 'w') do |file|
+      file.puts "Correct Guesses: #{correct_guesses}"
+      file.puts "Incorrect Guesses: #{incorrect_guesses}"
+      file.puts "Remaining Attempts: #{remaining_attempts}"
+      file.puts "Word: #{word}"
+    end
+  end
+
+  def load_saved_game
+    Dir.glob("output/save_*.txt").each_with_index do |file, index|
+      puts "#{index + 1}. #{file}"
+    end
+
+    print "Enter the number of the game you want to load: "
+    choice = gets.chomp.to_i
+
+    filename = Dir.glob("output/save_*.txt")[choice - 1]
+
+    if filename
+      File.open(filename, 'r') do |file|
+        lines = file.readlines
+        correct_guesses = lines[0].split(": ")[1].to_i
+        incorrect_guesses = lines[1].split(": ")[1].to_i
+        remaining_attempts = lines[2].split(": ")[1].to_i
+        word = lines[3].split(": ")[1]
+
+        [correct_guesses, incorrect_guesses, remaining_attempts, word]
+      end
+    else
+      puts "Invalid choice. No game loaded."
+      nil
+    end
+  end
 end
 
 game = Game.new
-game.user_option(gets.chomp)
