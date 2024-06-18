@@ -4,12 +4,14 @@ class Main
   end
 
   def start_game
-    puts "Welcome To Hangman Game\n"
-    puts "Type 'N' if you want to start new game\n"
-    puts "Type 'S' if you want to load saved games\n"
+  puts "Welcome to the game!"
+  puts "Would you like to:"
+  puts "  1. Start a new game"
+  puts "  2. Load a saved game"
+  print "Enter your choice (1 or 2): "
 
-    output = gets.chomp.upcase
-    @game.user_option(output)
+    choice = gets.chomp.to_i
+    @game.user_option(choice)
   end
 end
 
