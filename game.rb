@@ -22,4 +22,8 @@ class Game
       load_saved_game
     end
   end
+
+  def start_new_game
+    @players.
+  end
 end
