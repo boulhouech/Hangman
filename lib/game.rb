@@ -2,6 +2,14 @@ class Game
   attr_accessor :correct_guesses, :remaining_attempts
   attr_reader :option, :random_word
 
+  def initialize
+
+    @correct_guesses = Array.new(@random_word.length, "_")
+    @incorrect_guesses = []
+    @remaining_attempts = 10
+    @display.
+  end
+
   def user_option(option)
     @option = option
     until ['1', '2'].include?(@option)
@@ -24,13 +32,75 @@ class Game
     @random_word = words.sample
   end
 
+  def start_new_game
+    play_game(@random_word)
+  end
+
+  def load_saved_game
+    # implement loading saved game logic here
+  end
+
+  def play_game(word)
+    while @remaining_attempts > 0
+      display_game_state(@correct_guesses, @incorrect_guesses, @remaining_attempts)
+
+      guess = get_user_guess
+
+      if word.include?(guess)
+        update_correct_guesses(word, @correct_guesses, guess)
+      else
+        @incorrect_guesses << guess
+        @remaining_attempts -= 1
+      end
+
+      if won?(@correct_guesses, word)
+        congratulate_user(word)
+        return
+      end
+    end
+
+    if lost?(@remaining_attempts)
+      sorry_user(word)
+    end
+  end
+
+  def display_game_state(correct_guesses, incorrect_guesses, max_incorrect_guesses)
+    puts "Word: #{correct_guesses.join(" ")}"
+    puts "Incorrect guesses: #{incorrect_guesses.join(", ")}"
+    puts "Remaining guesses: #{max_incorrect_guesses}"
+    draw_hangman(max_incorrect_guesses)
+  end
+
+
   def get_user_guess
     print "Enter a letter: "
     gets.chomp.downcase
   end
 
-  def play_game
-
+  def update_correct_guesses(word, correct_guesses, guess)
+    word.split("").each_with_index do |letter, index|
+      if letter == guess
+        correct_guesses[index] = guess
+      end
+    end
   end
 
+  def won?(correct_guesses, word)
+    correct_guesses.join("") == word
+  end
+
+  def congratulate_user(word)
+    puts "Congratulations, you won! The word was #{word}."
+  end
+
+  def lost?(remaining_attempts)
+    remaining_attempts == 0
+  end
+
+  def sorry_user(word)
+    puts "Sorry, you lost. The word was #{word}."
+  end
 end
+
+game = Game.new
+game.user_option(gets.chomp)
