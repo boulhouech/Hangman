@@ -27,7 +27,7 @@ class Game
   end
 
   def pick_random_word
-    file_path = "ref.txt" 
+    file_path = "ref.txt"
 
     if File.exist?(file_path)
       file = File.open(file_path, "r")
